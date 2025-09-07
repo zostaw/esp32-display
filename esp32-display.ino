@@ -138,20 +138,12 @@ void loop() {
   digitalWrite(ONBOARD_LED_PIN, LOW); // LED off
 
 
-    //tft.fillScreen(TFT_BLACK);
-    //tft.setCursor(16, 13);
-    //tft.println("Mateusz Kowalkowski");
-    tft.setCursor(0, 0);
-    draw_disk(tft);
+  //tft.fillScreen(TFT_BLACK);
+  //tft.setCursor(16, 13);
+  //tft.println("Mateusz Kowalkowski");
+  //tft.setCursor(0, 0);
 
-
-  digitalWrite(ONBOARD_LED_PIN, HIGH); // LED off
-  delay(10);
-}
-
-
-
-void draw_disk(TFT_eSPI tft) {
+  
   static uint32_t radius = 2;
   static uint32_t index = 0;
 
@@ -167,11 +159,18 @@ void draw_disk(TFT_eSPI tft) {
   index += 5;
   index = index%192;
 
+
   if (radius > tft.height()/2) {
-    delay (10);
+    delay(1000);
     radius = 2;
   }
+
+
+  digitalWrite(ONBOARD_LED_PIN, HIGH); // LED off
+  delay(10);
 }
+
+
 
 unsigned int rainbow(byte value)
 {
