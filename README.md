@@ -12,6 +12,7 @@ Libraries:
 
 Additionally to installing these libs, one has to modify TFT_eSPI code.  
 Modify *TFT_eSPI/User_Setup.h*.
+That file is present in ~/Documents/Arduino/libraries/TFT_eSPI/User_Setup.h, but adding same to repo for backup.  
 
 These are crucial:
 
