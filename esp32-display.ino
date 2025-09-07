@@ -123,15 +123,12 @@ void setup() {
   tft.println(DIVIDER);
 
   tft.setTextSize(2);
-  tft.setTextColor(TFT_RED, TFT_BLACK);
-  tft.drawCentreString(F(" RED   LED "), TFT_WIDTH / 2, TFT_LED_TEXT_START, TFT_TEXT_SIZE);
-
-  delay(1000);
   tft.setTextColor(TFT_GREEN, TFT_BLACK);
   tft.drawCentreString(F(" GREEN LED "), TFT_WIDTH / 2, TFT_LED_TEXT_START, TFT_TEXT_SIZE);
   
-  delay(1000);
+  delay(200);
   tft.fillScreen(TFT_BLACK);
+  delay(200);
 }
 
 void loop() {
@@ -161,13 +158,13 @@ void loop() {
 
 
   if (radius > tft.height()/2) {
-    delay(1000);
+    delay(400);
     radius = 2;
   }
 
 
   digitalWrite(ONBOARD_LED_PIN, HIGH); // LED off
-  delay(10);
+  delay(100);
 }
 
 
