@@ -20,7 +20,7 @@ These are crucial:
 #define ST7735_DRIVER
 #define TFT_WIDTH  128
 #define TFT_HEIGHT 160
-#define ST7735_GREENTAB
+#define ST7735_GREENTAB2
 #define TFT_MOSI 10
 #define TFT_SCLK 8
 #define TFT_CS   21

@@ -141,6 +141,14 @@ void loop() {
   //tft.setCursor(0, 0);
 
   
+  for(uint32_t radius=1; radius<13; radius++){
+  tft.drawSmoothCircle(TFT_HEIGHT/4, TFT_WIDTH/4, radius, TFT_BLUE, TFT_BLUE);
+  tft.drawSmoothCircle(3*TFT_HEIGHT/4, TFT_WIDTH/4, radius, TFT_BLUE, TFT_BLUE);
+  tft.drawSmoothCircle(TFT_HEIGHT/4, 3*TFT_WIDTH/4, radius, TFT_BLUE, TFT_BLUE);
+  tft.drawSmoothCircle(3*TFT_HEIGHT/4, 3*TFT_WIDTH/4, radius, TFT_BLUE, TFT_BLUE);
+  tft.drawSmoothCircle(TFT_HEIGHT/2, TFT_WIDTH/2, radius, TFT_BLUE, TFT_BLUE);
+  }
+  /*
   static uint32_t radius = 2;
   static uint32_t index = 0;
 
@@ -161,6 +169,7 @@ void loop() {
     delay(400);
     radius = 2;
   }
+  */
 
 
   digitalWrite(ONBOARD_LED_PIN, HIGH); // LED off
