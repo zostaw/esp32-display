@@ -16,13 +16,6 @@ Note *1) If you don't need a dimming you can connect BLK with 3.3V
 Note *2) The display does not have a MISO ("output") terminal, so it is not wired
 */
 
-// -------------------------------------------------------------------------------
-// Sketch and Board information
-const char *PROGRAM_VERSION = "ESP32-C3 Supermini ST7735 Starter V03";
-const char *DEVICE_NAME = "ESP32-C3 Supermini   1.8 inch 128 x 160 px";
-
-const char *PROGRAM_VERSION_SHORT = "ST7735 Starter V03";
-const char *DIVIDER = "---------------------";
 
 // -------------------------------------------------------------------------------
 // TFT Display
@@ -30,6 +23,7 @@ const char *DIVIDER = "---------------------";
 #include "TFT_eSPI.h"
 
 TFT_eSPI tft = TFT_eSPI();
+TFT_eSprite spr = TFT_eSprite(&tft);  // Declare Sprite object "spr" with pointer to "tft" object
 
 #define TFT_BL_PIN 5 // backlight brightness control, needs to be a PWM pin
 #define TFT_BRIGHTNESS_PERCENT 30 // avoids overheating of the device
@@ -39,7 +33,6 @@ TFT_eSPI tft = TFT_eSPI();
 #define SCREEN_HEIGHT 128 // inverted, because we use landscape
 #define TFT_LED_TEXT_START 120
 #define TFT_AUTHOR_TEXT_START 145
-
 
 
 // -------------------------------------------------------------------------------
@@ -80,6 +73,84 @@ const float initial_state_probabilities[NUM_STATES] = {0.0625, 0.0625, 0.0625, 0
 
 // Variable to hold the current state of the system (0 to NUM_STATES-1).
 int current_state;
+int previous_state;
+
+
+void setup() {
+  // init the display
+  tft.begin();
+
+  spr.createSprite(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+  // set the brightness to 90% to avoid heating of the device
+  pinMode(TFT_BL_PIN, OUTPUT);
+  analogWrite(TFT_BL_PIN, 255 * TFT_BRIGHTNESS_PERCENT / 100);
+  delay(10);
+
+  // setup the onboard LED
+  pinMode(ONBOARD_LED_PIN, OUTPUT);
+  digitalWrite(ONBOARD_LED_PIN, HIGH);  // LED off
+
+  tft.fillScreen(TFT_BLACK);
+  tft.setRotation(1); // landscape
+  delay(100);
+
+  current_state = get_initial_state();
+}
+
+void loop() {
+  spr.fillSprite(TFT_BLACK);
+  previous_state = current_state;
+  current_state = get_next_state(current_state);
+  // the directions are scewed I know
+  spr.drawLine(posX(current_state), posY(current_state), posX(previous_state) , posY(previous_state), main_color);
+
+  spr.pushSprite(-2, 0);
+  delay(100);
+
+  for(int diode_id=0; diode_id < NUM_STATES; diode_id++){
+    if(diode_id == current_state) {
+      drawDiode(diode_id, main_color);
+    } else {
+      drawDiode(diode_id, 0x0000);
+    }
+  }
+  
+  delay(100);
+}
+
+void drawDiode(int id, uint16_t main_color) {
+  uint16_t color;
+  for(uint32_t radius=1; radius<9; radius++){
+    if(main_color != 0x0000)
+      color = adjustColor(main_color);
+    tft.drawSmoothCircle(posX(id), posY(id), radius, color, color);
+  }
+}
+
+int posX(int diode_id) {
+  return ((diode_id%4) + 1) * SCREEN_WIDTH  / 5;
+}
+
+int posY(int diode_id) {
+  return ((diode_id/4) + 1) * SCREEN_HEIGHT / 5;
+}
+
+uint16_t adjustColor(uint16_t color) {
+    // Extract channels
+    int r = (color >> 11) & 0x1F;
+    int g = (color >> 5)  & 0x3F;
+    int b =  color        & 0x1F;
+
+    // Random small adjustment (-2..+2 here)
+    r = std::max(0, std::min(31, r + (rand() % 5 - 3)));
+    g = std::max(0, std::min(63, g + (rand() % 5 - 3)));
+    b = std::max(0, std::min(31, b + (rand() % 5 - 3)));
+
+    // Pack back into RGB565
+    return (r << 11) | (g << 5) | b;
+}
+
 
 
 //=============================================================================
@@ -156,72 +227,6 @@ int get_initial_state() {
   float cumulative_probabilities[NUM_STATES];
   calculate_cumulative_probs(initial_state_probabilities, cumulative_probabilities, NUM_STATES);
   return weighted_random_choice(cumulative_probabilities, NUM_STATES);
-}
-
-
-void setup() {
-  // init the display
-  tft.begin();
-
-  // set the brightness to 90% to avoid heating of the device
-  pinMode(TFT_BL_PIN, OUTPUT);
-  analogWrite(TFT_BL_PIN, 255 * TFT_BRIGHTNESS_PERCENT / 100);
-  delay(10);
-
-  // setup the onboard LED
-  pinMode(ONBOARD_LED_PIN, OUTPUT);
-  digitalWrite(ONBOARD_LED_PIN, HIGH);  // LED off
-
-  tft.fillScreen(TFT_BLACK);
-  tft.setRotation(1); // landscape
-  delay(100);
-
-  current_state = get_initial_state();
-}
-
-void loop() {
-  current_state = get_next_state(current_state);
-
-  for(int diode_id=0; diode_id < NUM_STATES; diode_id++){
-    if(diode_id == current_state) {
-      drawDiode(diode_id, main_color);
-    } else {
-      drawDiode(diode_id, 0x0000);
-    }
-  }
-  delay(10);
-}
-
-void drawDiode(int id, uint16_t main_color) {
-  uint16_t color;
-  for(uint32_t radius=1; radius<9; radius++){
-    if(main_color != 0x0000)
-      color = adjustColor(main_color);
-    tft.drawSmoothCircle(posX(id), posY(id), radius, color, color);
-  }
-}
-
-int posX(int diode_id) {
-  return ((diode_id%4) + 1) * SCREEN_WIDTH  / 5;
-}
-
-int posY(int diode_id) {
-  return ((diode_id/4) + 1) * SCREEN_HEIGHT / 5;
-}
-
-uint16_t adjustColor(uint16_t color) {
-    // Extract channels
-    int r = (color >> 11) & 0x1F;
-    int g = (color >> 5)  & 0x3F;
-    int b =  color        & 0x1F;
-
-    // Random small adjustment (-2..+2 here)
-    r = std::max(0, std::min(31, r + (rand() % 5 - 3)));
-    g = std::max(0, std::min(63, g + (rand() % 5 - 3)));
-    b = std::max(0, std::min(31, b + (rand() % 5 - 3)));
-
-    // Pack back into RGB565
-    return (r << 11) | (g << 5) | b;
 }
 
 
