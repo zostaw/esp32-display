@@ -99,29 +99,23 @@ void setup() {
 }
 
 void loop() {
-  spr.fillSprite(TFT_BLACK);
   previous_state = current_state;
   current_state = get_next_state(current_state);
-  // the directions are scewed I know
+
+  // the directions are skewed I know
+  spr.fillSprite(TFT_BLACK);
+
   spr.drawLine(posX(current_state), posY(current_state), posX(previous_state) , posY(previous_state), main_color);
-
   spr.pushSprite(-2, 0);
+  drawDiode(previous_state, main_color, 5);
+  drawDiode(current_state, main_color, 10);
   delay(100);
 
-  for(int diode_id=0; diode_id < NUM_STATES; diode_id++){
-    if(diode_id == current_state) {
-      drawDiode(diode_id, main_color);
-    } else {
-      drawDiode(diode_id, 0x0000);
-    }
-  }
-  
-  delay(100);
 }
 
-void drawDiode(int id, uint16_t main_color) {
+void drawDiode(int id, uint16_t main_color, int max_radius) {
   uint16_t color;
-  for(uint32_t radius=1; radius<9; radius++){
+  for(uint32_t radius=1; radius<max_radius; radius++){
     if(main_color != 0x0000)
       color = adjustColor(main_color);
     tft.drawSmoothCircle(posX(id), posY(id), radius, color, color);
