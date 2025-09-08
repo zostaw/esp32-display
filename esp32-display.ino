@@ -35,8 +35,12 @@ TFT_eSPI tft = TFT_eSPI();
 #define TFT_BRIGHTNESS_PERCENT 30 // avoids overheating of the device
 #define TFT_TEXT_SIZE 1
 #define TFT_WIDTH 128
+#define SCREEN_WIDTH 160 // inverted, because we use landscape
+#define SCREEN_HEIGHT 128 // inverted, because we use landscape
 #define TFT_LED_TEXT_START 120
 #define TFT_AUTHOR_TEXT_START 145
+
+
 
 // -------------------------------------------------------------------------------
 // Onboard LED
@@ -51,7 +55,7 @@ const int NUM_STATES = 16;
 // The transition probability matrix for the Markov chain.
 // P(i, j) is the probability of moving from state `i` to state `j`.
 // Corresponds to Racket's `markov-probability-matrix`.
-const float markov_probability_matrix[16][16] = {
+const float markov_probability_matrix[NUM_STATES][NUM_STATES] = {
   {0.1127, 0.0204, 0.0274, 0.0421, 0.0745, 0.0539, 0.0539, 0.1007, 0.0053, 0.0713, 0.1124, 0.0948, 0.0011, 0.1132, 0.1039, 0.0124},
   {0.0345, 0.0162, 0.0314, 0.0664, 0.1089, 0.1232, 0.0535, 0.0283, 0.0847, 0.0440, 0.0746, 0.1036, 0.1098, 0.0642, 0.0143, 0.0424},
   {0.1054, 0.0151, 0.0247, 0.0842, 0.0210, 0.0636, 0.0999, 0.0737, 0.0346, 0.1287, 0.1009, 0.0284, 0.0503, 0.0795, 0.0292, 0.0608},
@@ -155,12 +159,7 @@ int get_initial_state() {
 }
 
 
-
 void setup() {
-  Serial.begin(115200);
-  delay(1000);
-  Serial.println(PROGRAM_VERSION);
-
   // init the display
   tft.begin();
 
@@ -173,21 +172,15 @@ void setup() {
   pinMode(ONBOARD_LED_PIN, OUTPUT);
   digitalWrite(ONBOARD_LED_PIN, HIGH);  // LED off
 
-
   tft.fillScreen(TFT_BLACK);
   tft.setRotation(1); // landscape
-
-  delay(200);
+  delay(100);
 
   current_state = get_initial_state();
-
-
 }
 
 void loop() {
-
   current_state = get_next_state(current_state);
-  //delay(10);
 
   for(int diode_id=0; diode_id < NUM_STATES; diode_id++){
     if(diode_id == current_state) {
@@ -196,8 +189,7 @@ void loop() {
       drawDiode(diode_id, 0x0000);
     }
   }
- 
-  delay(1);
+  delay(10);
 }
 
 void drawDiode(int id, uint16_t main_color) {
@@ -205,60 +197,16 @@ void drawDiode(int id, uint16_t main_color) {
   for(uint32_t radius=1; radius<9; radius++){
     if(main_color != 0x0000)
       color = adjustColor(main_color);
-
-    switch(id){
-      case 0:
-        tft.drawSmoothCircle(1*TFT_HEIGHT/5, 1*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 1:
-        tft.drawSmoothCircle(2*TFT_HEIGHT/5, 1*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 2:
-        tft.drawSmoothCircle(3*TFT_HEIGHT/5, 1*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 3:
-        tft.drawSmoothCircle(4*TFT_HEIGHT/5, 1*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 4:
-        tft.drawSmoothCircle(1*TFT_HEIGHT/5, 2*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 5:
-        tft.drawSmoothCircle(2*TFT_HEIGHT/5, 2*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 6:
-        tft.drawSmoothCircle(3*TFT_HEIGHT/5, 2*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 7:
-        tft.drawSmoothCircle(4*TFT_HEIGHT/5, 2*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 8:
-        tft.drawSmoothCircle(1*TFT_HEIGHT/5, 3*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 9:
-        tft.drawSmoothCircle(2*TFT_HEIGHT/5, 3*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 10:
-        tft.drawSmoothCircle(3*TFT_HEIGHT/5, 3*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 11:
-        tft.drawSmoothCircle(4*TFT_HEIGHT/5, 3*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 12:
-        tft.drawSmoothCircle(1*TFT_HEIGHT/5, 4*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 13:
-        tft.drawSmoothCircle(2*TFT_HEIGHT/5, 4*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 14:
-        tft.drawSmoothCircle(3*TFT_HEIGHT/5, 4*TFT_WIDTH/5, radius, color, color);
-        break;
-      case 15:
-        tft.drawSmoothCircle(4*TFT_HEIGHT/5, 4*TFT_WIDTH/5, radius, color, color);
-        break;
-      default:
-        break;
-    }
+    tft.drawSmoothCircle(posX(id), posY(id), radius, color, color);
   }
+}
+
+int posX(int diode_id) {
+  return ((diode_id%4) + 1) * SCREEN_WIDTH  / 5;
+}
+
+int posY(int diode_id) {
+  return ((diode_id/4) + 1) * SCREEN_HEIGHT / 5;
 }
 
 uint16_t adjustColor(uint16_t color) {
