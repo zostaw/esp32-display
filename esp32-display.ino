@@ -26,7 +26,7 @@ TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite spr = TFT_eSprite(&tft);  // Declare Sprite object "spr" with pointer to "tft" object
 
 #define TFT_BL_PIN 5 // backlight brightness control, needs to be a PWM pin
-#define TFT_BRIGHTNESS_PERCENT 30 // avoids overheating of the device
+#define TFT_BRIGHTNESS_PERCENT 20 // avoids overheating of the device
 #define TFT_TEXT_SIZE 1
 #define TFT_WIDTH 128
 #define SCREEN_WIDTH 160 // inverted, because we use landscape
