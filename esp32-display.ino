@@ -4,7 +4,7 @@ Terminals on display's pcb from left to right
 
 TFT   ESP32-C3
 BLK   5 *1)
-SCL   8 (= "SCK")
+SCL   6 (= "SCK")
 SDA   10 (= "MOSI")
 DC    7
 RST   9
@@ -26,7 +26,7 @@ TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite spr = TFT_eSprite(&tft);  // Declare Sprite object "spr" with pointer to "tft" object
 
 #define TFT_BL_PIN 5 // backlight brightness control, needs to be a PWM pin
-#define TFT_BRIGHTNESS_PERCENT 20 // avoids overheating of the device
+#define TFT_BRIGHTNESS_PERCENT 60 // avoids overheating of the device
 #define TFT_TEXT_SIZE 1
 #define TFT_WIDTH 128
 #define SCREEN_WIDTH 160 // inverted, because we use landscape
@@ -37,7 +37,7 @@ TFT_eSprite spr = TFT_eSprite(&tft);  // Declare Sprite object "spr" with pointe
 
 // -------------------------------------------------------------------------------
 // Onboard LED
-#define ONBOARD_LED_PIN 3 // LOW = LED on, HIGH LED off
+#define ONBOARD_LED_PIN 8 // LOW = LED on, HIGH LED off
 
 uint16_t main_color = 0xF805;
 
@@ -89,7 +89,8 @@ void setup() {
 
   // setup the onboard LED
   pinMode(ONBOARD_LED_PIN, OUTPUT);
-  digitalWrite(ONBOARD_LED_PIN, HIGH);  // LED off
+  //digitalWrite(ONBOARD_LED_PIN, HIGH);  // LED off
+  analogWrite(ONBOARD_LED_PIN, 255 * (100 - TFT_BRIGHTNESS_PERCENT) / 100);
 
   tft.fillScreen(TFT_BLACK);
   tft.setRotation(1); // landscape

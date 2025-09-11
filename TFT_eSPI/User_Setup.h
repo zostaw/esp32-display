@@ -222,7 +222,7 @@
 //
 
 #define TFT_MOSI 10
-#define TFT_SCLK 8
+#define TFT_SCLK 6
 #define TFT_CS   21
 #define TFT_DC   7
 #define TFT_RST  9
