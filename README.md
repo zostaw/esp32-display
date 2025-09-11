@@ -1,5 +1,10 @@
 # running TFT 128x160 display on ESP32 C3
 
+## What is it
+
+Setup for a Aliexpress-bought display and fake ESP32 C3.  
+The display runs a primitive Markov Chain process with 16 states (grid 4x4).  
+
 ## Requirements
 
 Board:
